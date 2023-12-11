@@ -1,4 +1,5 @@
 use rayon::prelude::*;
+use std::io::Write;
 
 const FRAME_DELAY: u32 = 5;
 const WINDOW_NAME: &str = "Motion Extraction";
@@ -26,13 +27,14 @@ fn main() -> std::io::Result<()> {
     let mut camera = nokhwa::Camera::new(index, requested).unwrap();
 	let resolution = camera.resolution();
     // create window
-    let window = show_image::create_window("image", Default::default()).unwrap();
+    let window = show_image::create_window(WINDOW_NAME, Default::default()).unwrap();
 	// create buffer of frames of size frame_delay
 	let mut buffer: Vec<image::ImageBuffer<image::Rgb<u8>, Vec<u8>>> = Vec::with_capacity(FRAME_DELAY as usize);
 
     loop {
+		let start = std::time::Instant::now();
         // get a frame
-        let frame = camera.frame().unwrap();
+        let frame: nokhwa::Buffer = camera.frame().unwrap();
         // decode into an ImageBuffer
         let decoded = frame
             .decode_image::<nokhwa::pixel_format::RgbFormat>()
@@ -62,5 +64,8 @@ fn main() -> std::io::Result<()> {
 			buffer.remove(0);
 		}
 		buffer.push(decoded);
+
+		print!("FPS: {}\r", 1.0 / start.elapsed().as_secs_f64());
+		std::io::stdout().flush().unwrap();
     }
 }
