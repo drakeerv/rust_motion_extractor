@@ -18,7 +18,8 @@ fn main() -> std::io::Result<()> {
     // first camera in system
     let index = nokhwa::utils::CameraIndex::Index(0);
     let requested = nokhwa::utils::RequestedFormat::new::<nokhwa::pixel_format::RgbFormat>(
-        nokhwa::utils::RequestedFormatType::AbsoluteHighestResolution,
+        // nokhwa::utils::RequestedFormatType::AbsoluteHighestFrameRate,
+		nokhwa::utils::RequestedFormatType::AbsoluteHighestResolution,
     );
     // make the camera
     let mut camera = nokhwa::Camera::new(index, requested).unwrap();
@@ -40,7 +41,6 @@ fn main() -> std::io::Result<()> {
 		if buffer.len() == FRAME_DELAY as usize {
 			buffer.remove(0);
 		}
-		buffer.push(decoded.clone());
 
 		// add the oldest image on top of the newest image at 50% opacity
 		if buffer.len() > 1 {
@@ -60,5 +60,8 @@ fn main() -> std::io::Result<()> {
 				)
 				.unwrap();
 		}
+
+		// add the newest image to the buffer
+		buffer.push(decoded);
     }
 }
