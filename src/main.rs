@@ -20,8 +20,8 @@ fn main() -> std::io::Result<()> {
     // first camera in system
     let index = nokhwa::utils::CameraIndex::Index(0);
     let requested = nokhwa::utils::RequestedFormat::new::<nokhwa::pixel_format::RgbFormat>(
-        // nokhwa::utils::RequestedFormatType::AbsoluteHighestFrameRate,
-		nokhwa::utils::RequestedFormatType::AbsoluteHighestResolution,
+        nokhwa::utils::RequestedFormatType::AbsoluteHighestFrameRate,
+		// nokhwa::utils::RequestedFormatType::AbsoluteHighestResolution,
     );
     // make the camera
     let mut camera = nokhwa::Camera::new(index, requested).unwrap();
