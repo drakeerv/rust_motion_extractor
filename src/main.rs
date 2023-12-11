@@ -1,6 +1,7 @@
 use rayon::prelude::*;
 
 const FRAME_DELAY: u32 = 5;
+const WINDOW_NAME: &str = "Motion Extraction";
 
 fn blend_image(image1: &image::ImageBuffer<image::Rgb<u8>, Vec<u8>>, image2: &image::ImageBuffer<image::Rgb<u8>, Vec<u8>>) -> image::ImageBuffer<image::Rgb<u8>, Vec<u8>> {
 	let mut image = image1.clone();
@@ -8,7 +9,7 @@ fn blend_image(image1: &image::ImageBuffer<image::Rgb<u8>, Vec<u8>>, image2: &im
 		.par_iter_mut()
 		.zip(image2.par_iter())
 		.for_each(|(pixel1, pixel2)| {
-			*pixel1 = (*pixel1 as f32 * 0.5 + (255 - *pixel2) as f32 * 0.5) as u8;
+			*pixel1 = ((*pixel1 as u16 + !*pixel2 as u16) / 2) as u8
 		});
 	image
 }
@@ -37,11 +38,6 @@ fn main() -> std::io::Result<()> {
             .decode_image::<nokhwa::pixel_format::RgbFormat>()
             .unwrap();
 
-		// add frame to buffer
-		if buffer.len() == FRAME_DELAY as usize {
-			buffer.remove(0);
-		}
-
 		// add the oldest image on top of the newest image at 50% opacity
 		if buffer.len() > 1 {
 			let image = blend_image(&buffer[0], &decoded);
@@ -49,7 +45,7 @@ fn main() -> std::io::Result<()> {
 			// save the image
 			window
 				.set_image(
-					"image",
+					WINDOW_NAME,
 					show_image::ImageView::new(
 						show_image::ImageInfo::rgb8(
 							resolution.width(),
@@ -60,8 +56,11 @@ fn main() -> std::io::Result<()> {
 				)
 				.unwrap();
 		}
-
-		// add the newest image to the buffer
+		
+		// add frame to buffer
+		if buffer.len() == FRAME_DELAY as usize {
+			buffer.remove(0);
+		}
 		buffer.push(decoded);
     }
 }

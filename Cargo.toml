@@ -8,3 +8,8 @@ image = { version = "0.24.7", default-features = false }
 nokhwa = { version = "0.10.4", features = ["input-native"] }
 rayon = "1.8.0"
 show-image = "0.13.1"
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1
